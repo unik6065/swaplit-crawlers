@@ -22,3 +22,9 @@ class SwaplitItem(scrapy.Item):
     dimensions = scrapy.Field()
     poids = scrapy.Field()
     language = scrapy.Field()
+
+class AuthorItem(scrapy.Item):
+    author_id = scrapy.Field()
+    first_name = scrapy.Field()
+    last_name = scrapy.Field()
+    biography = scrapy.Field()
