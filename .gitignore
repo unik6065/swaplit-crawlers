@@ -1,1 +1,4 @@
 credentials.sh
+*.json
+__pycache__/
+**.pyc
