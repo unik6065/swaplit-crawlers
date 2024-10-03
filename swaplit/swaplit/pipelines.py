@@ -30,7 +30,7 @@ class SwiftImagesPipeline(ImagesPipeline):
                 'region_name': os.getenv('OS_REGION_NAME')
             }
         )
-        self.container = 'dev'
+        self.container = spider.settings.get('SWIFT_CONTAINER')
 
     def store_image(self, image_path):
         # Uploader une image dans le conteneur Swift
