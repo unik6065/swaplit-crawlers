@@ -28,3 +28,8 @@ class AuthorItem(scrapy.Item):
     first_name = scrapy.Field()
     last_name = scrapy.Field()
     biography = scrapy.Field()
+
+class EditorItem(scrapy.Item):
+    name = scrapy.Field()
+    images = scrapy.Field()
+    image_urls = scrapy.Field
