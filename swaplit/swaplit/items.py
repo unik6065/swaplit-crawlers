@@ -31,5 +31,6 @@ class AuthorItem(scrapy.Item):
 
 class EditorItem(scrapy.Item):
     name = scrapy.Field()
+    website_url = scrapy.Field()
+    image_urls = scrapy.Field()
     images = scrapy.Field()
-    image_urls = scrapy.Field
