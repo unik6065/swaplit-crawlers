@@ -30,7 +30,10 @@ class SwiftImagesPipeline(ImagesPipeline):
                 'region_name': os.getenv('OS_REGION_NAME')
             }
         )
-        self.container = spider.settings.get('SWIFT_CONTAINER')
+        if spider.name == 'book':
+            self.container = spider.settings.get('SWIFT_CONTAINER')
+        elif spider.name == 'hachette_editors':
+            self.container = spider.settings.get('SWIFT_EDITOR_CONTAINER')
 
     def store_image(self, image_path):
         # Uploader une image dans le conteneur Swift
