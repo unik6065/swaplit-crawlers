@@ -71,6 +71,7 @@ ITEM_PIPELINES = {
 IMAGES_STORE = 'images'
 
 SWIFT_CONTAINER= 'SWAPLIT-BOOKCOVER-DEV'
+SWIFT_EDITOR_CONTAINER= 'SWAPLIT-EDITOR-DEV'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
