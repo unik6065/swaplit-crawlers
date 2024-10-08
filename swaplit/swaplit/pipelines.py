@@ -10,12 +10,13 @@ import swiftclient
 import os
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exporters import CsvItemExporter
+import swaplit.items as items
 
 
 class CSVExportItemPipeline:
     def open_spider(self, spider):
         self.exporters = {}
-        self.csv_file_path = f'{spider.name}.csv'
+        self.csv_file_path = spider.name.split('_')[0]
 
     def close_spider(self, spider):
         for exporter, csv_file in self.exporters.values():
@@ -23,6 +24,13 @@ class CSVExportItemPipeline:
             csv_file.close()
 
     def _exporter_for_item(self, item):
+        if isinstance(item, items.SwaplitItem):
+            self.csv_file_path += '_books.csv'
+        elif isinstance(item, items.AuthorItem):
+            self.csv_file_path += '_authors.csv'
+        else:
+            self.csv_file_path += '_editors.csv'
+
         csv_file = open(self.csv_file_path, "wb")
         exporter = CsvItemExporter(csv_file)
         exporter.start_exporting()
@@ -49,19 +57,27 @@ class SwaplitPipeline:
                 'region_name': os.getenv('OS_REGION_NAME')
             }
         )
-        self.file_name = f'{spider.name}.csv'
+        self.file_name = spider.name.split('_')[0]
+        files_extended = ['_books.csv', '_authors.csv', '_editors.csv']
+        self.file_names = []
+        for extension in files_extended:
+            self.file_names.append(f"{self.file_name}{extension}")
 
     def process_item(self, item, spider):
         return item
     def close_spider(self, spider):
-        with open(self.file_name, 'rb') as csv_file:
-            self.conn.put_object(
-                self.container,
-                self.file_name,
-                contents=csv_file,
-                content_type='text/csv'
-            )
-        os.remove(self.file_name)
+        for file in self.file_names:
+            try:
+                with open(file, 'rb') as csv_file:
+                    self.conn.put_object(
+                        self.container,
+                        file,
+                        contents=csv_file,
+                        content_type='text/csv'
+                    )
+                os.remove(file)
+            except:
+                print('Not file called', file)
         # Retrieve the URL of the uploaded image
         self.conn.close()
 
