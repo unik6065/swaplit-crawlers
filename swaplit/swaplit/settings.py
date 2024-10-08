@@ -63,15 +63,16 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-#    "swaplit.pipelines.SwaplitPipeline": 300,
-    # "scrapy.pipelines.images.ImagesPipeline": 1
-    "swaplit.pipelines.SwiftImagesPipeline": 1,
+   "swaplit.pipelines.CSVExportItemPipeline": 400,
+   "swaplit.pipelines.SwaplitPipeline": 300,
+   "swaplit.pipelines.SwiftImagesPipeline": 1,
 }
 
 IMAGES_STORE = 'images'
 
 SWIFT_CONTAINER= 'SWAPLIT-BOOKCOVER-DEV'
 SWIFT_EDITOR_CONTAINER= 'SWAPLIT-EDITOR-DEV'
+DATA_CONTAINER='Data'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
