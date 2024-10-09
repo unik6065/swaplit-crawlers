@@ -23,22 +23,27 @@ class CSVExportItemPipeline:
             exporter.finish_exporting()
             csv_file.close()
 
-    def _exporter_for_item(self, item):
+    def _exporter_for_item(self, item, spider):
         if isinstance(item, items.SwaplitItem):
-            self.csv_file_path += '_books.csv'
+            self.csv_file_path = f'{spider.name.split('_')[0]}_books.csv'
         elif isinstance(item, items.AuthorItem):
-            self.csv_file_path += '_authors.csv'
+            self.csv_file_path = f'{spider.name.split('_')[0]}_authors.csv'
         else:
-            self.csv_file_path += '_editors.csv'
+            self.csv_file_path = f'{spider.name.split('_')[0]}_editors.csv'
 
+        # If the exporter is already created for the csv_file_path, skip the creation
+        if self.csv_file_path in self.exporters:
+            return self.exporters[self.csv_file_path][0]
+
+        # Otherwise create it
         csv_file = open(self.csv_file_path, "wb")
         exporter = CsvItemExporter(csv_file)
         exporter.start_exporting()
-        self.exporters[csv_file] = (exporter, csv_file)
-        return self.exporters[csv_file][0]
+        self.exporters[self.csv_file_path] = (exporter, csv_file)
+        return self.exporters[self.csv_file_path][0]
 
     def process_item(self, item, spider):
-        exporter = self._exporter_for_item(item)
+        exporter = self._exporter_for_item(item, spider)
         exporter.export_item(item)
         return item
 
@@ -86,6 +91,7 @@ class SwiftImagesPipeline(ImagesPipeline):
 
     def open_spider(self, spider):
         # Se connecter à OpenStack Swift
+        self.spider = spider
         self.spiderinfo = self.SpiderInfo(spider)
         self.conn = swiftclient.Connection(
             auth_version='3',  # OpenStack Identity API v3
@@ -98,10 +104,11 @@ class SwiftImagesPipeline(ImagesPipeline):
                 'region_name': os.getenv('OS_REGION_NAME')
             }
         )
-        if spider.name == 'book':
-            self.container = spider.settings.get('SWIFT_CONTAINER')
-        elif spider.name == 'hachette_editors':
-            self.container = spider.settings.get('SWIFT_EDITOR_CONTAINER')
+        self.container = ''
+        # if spider.name == 'book':
+        #     self.container = spider.settings.get('SWIFT_CONTAINER')
+        # elif spider.name == 'hachette_editors':
+        #     self.container = spider.settings.get('SWIFT_EDITOR_CONTAINER')
 
     def store_image(self, image_path):
         # Uploader une image dans le conteneur Swift
@@ -120,6 +127,11 @@ class SwiftImagesPipeline(ImagesPipeline):
 
     def item_completed(self, results, item, info):
         # Appelé après que les images soient téléchargées localement
+        if isinstance(item, items.SwaplitItem):
+            self.container = self.spider.settings.get('SWIFT_CONTAINER')
+        if isinstance(item, items.EditorItem):
+            self.container = self.spider.settings.get('SWIFT_EDITOR_CONTAINER')
+
         for ok, x in results:
             if ok:
                 # Une fois que l'image est téléchargée localement, on l'upload vers Swift
