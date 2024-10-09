@@ -6,25 +6,24 @@
 import scrapy
 
 
-class SwaplitItem(scrapy.Item):
+class BookItem(scrapy.Item):
+    EAN = scrapy.Field()
+    title = scrapy.Field()
     image_urls = scrapy.Field()
     images = scrapy.Field()
-    book_title = scrapy.Field()
     author = scrapy.Field()
-    author_id = scrapy.Field()
-    informations = scrapy.Field()
-    ean13 = scrapy.Field()
-    isbn = scrapy.Field()
-    editeur = scrapy.Field()
-    publication_date = scrapy.Field()
+    editor = scrapy.Field()
     collection = scrapy.Field()
-    page_number = scrapy.Field()
+    # author_id = scrapy.Field()
+    publication_date = scrapy.Field()
+    summary = scrapy.Field()
+    number_of_pages = scrapy.Field()
     dimensions = scrapy.Field()
-    poids = scrapy.Field()
+    weight = scrapy.Field()
     language = scrapy.Field()
 
+
 class AuthorItem(scrapy.Item):
-    author_id = scrapy.Field()
     first_name = scrapy.Field()
     last_name = scrapy.Field()
     biography = scrapy.Field()
