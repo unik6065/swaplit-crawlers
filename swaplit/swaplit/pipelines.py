@@ -24,7 +24,7 @@ class CSVExportItemPipeline:
             csv_file.close()
 
     def _exporter_for_item(self, item, spider):
-        if isinstance(item, items.SwaplitItem):
+        if isinstance(item, items.BookItem):
             self.csv_file_path = f'{spider.name.split('_')[0]}_books.csv'
         elif isinstance(item, items.AuthorItem):
             self.csv_file_path = f'{spider.name.split('_')[0]}_authors.csv'
@@ -105,10 +105,6 @@ class SwiftImagesPipeline(ImagesPipeline):
             }
         )
         self.container = ''
-        # if spider.name == 'book':
-        #     self.container = spider.settings.get('SWIFT_CONTAINER')
-        # elif spider.name == 'hachette_editors':
-        #     self.container = spider.settings.get('SWIFT_EDITOR_CONTAINER')
 
     def store_image(self, image_path):
         # Uploader une image dans le conteneur Swift
@@ -127,7 +123,7 @@ class SwiftImagesPipeline(ImagesPipeline):
 
     def item_completed(self, results, item, info):
         # Appelé après que les images soient téléchargées localement
-        if isinstance(item, items.SwaplitItem):
+        if isinstance(item, items.BookItem):
             self.container = self.spider.settings.get('SWIFT_CONTAINER')
         if isinstance(item, items.EditorItem):
             self.container = self.spider.settings.get('SWIFT_EDITOR_CONTAINER')
