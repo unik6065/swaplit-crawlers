@@ -9,3 +9,4 @@ RUN pip install Pillow
 RUN pip install boto
 RUN pip install python-swiftclient
 RUN pip install python-keystoneclient
+RUN pip install pyyaml
