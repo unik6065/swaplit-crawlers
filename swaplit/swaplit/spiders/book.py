@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from urllib import request
 import scrapy
-from ..items import SwaplitItem
+from ..items import BookItem
 
 class BookSpider(scrapy.Spider):
     name = "book"
@@ -10,20 +10,20 @@ class BookSpider(scrapy.Spider):
     start_urls = ["https://www.leslibraires.fr/livre/23662610-frapper-l-epopee-alice-zeniter-flammarion"]
 
     def parse(self, response):
-        item = SwaplitItem()
+        item = BookItem()
 
-        item["book_title"] = response.css('h1 span[itemprop="name"]::text').get()
+        item["title"] = response.css('h1 span[itemprop="name"]::text').get()
         item["author"] = response.css('h2 a[itemprop="author"]::text').get()
-        item["author_id"] = response.css('h2 a[itemprop="author"]::attr(href)').get().split('/')[3]
-        item["informations"] = response.css('[id="infos-description"]::text').get()
-        item["ean13"] = response.css('div.tab-content dd::text')[1].get()
+        # item["author_id"] = response.css('h2 a[itemprop="author"]::attr(href)').get().split('/')[3]
+        item["summary"] = response.css('[id="infos-description"]::text').get()
+        item["EAN"] = response.css('div.tab-content dd::text')[1].get()
         item["isbn"] = response.css('div.tab-content dd[itemprop="isbn"]::text').get()
-        item["editeur"] = response.css('div.tab-content dd[itemprop="publisher"] a::text').get()
+        item["editor"] = response.css('div.tab-content dd[itemprop="publisher"] a::text').get()
         item["publication_date"] = response.css('div.tab-content dd[itemprop="datePublished"]::text').get()
         item["collection"] = response.css('div.tab-content dd a::text')[2].get()
-        item["page_number"] = response.css('div.tab-content dd[itemprop="numberOfPages"]::text').get()
+        item["number_of_pages"] = response.css('div.tab-content dd[itemprop="numberOfPages"]::text').get()
         item["dimensions"] = response.css('div.tab-content dd::text')[9].get()
-        item["poids"] = response.css('div.tab-content dd[itemtype="http://schema.org/Weight"]::text').get()
+        item["weight"] = response.css('div.tab-content dd[itemtype="http://schema.org/Weight"]::text').get()
         item["language"] = response.css('div.tab-content dd[itemprop="inLanguage"]::text').get()
 
         image_urls_response = request.urlopen(f'https://bookcover.longitood.com/bookcover/{response.css('div.tab-content dd::text')[1].get()}')
