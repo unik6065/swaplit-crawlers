@@ -21,6 +21,7 @@ class BookItem(scrapy.Item):
     dimensions = scrapy.Field()
     weight = scrapy.Field()
     language = scrapy.Field()
+    categories = scrapy.Field()
 
 
 class AuthorItem(scrapy.Item):
