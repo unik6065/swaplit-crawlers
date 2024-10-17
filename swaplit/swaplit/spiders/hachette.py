@@ -3,24 +3,30 @@ import json
 from ..items import EditorItem
 from ..items import BookItem
 from ..items import AuthorItem
+from swaplit.helpers.categories_helper import CategoryHelper
 
 
 class HachetteSpider(scrapy.Spider):
     name = "hachette"
     download_delay = 10
     allowed_domains = ["hachette.fr"]
+    # start_urls = ["https://www.hachette.fr/theme/beaux-livres", "https://www.hachette.fr/theme/histoire-de-lart-et-art-majeurs", "https://www.hachette.fr/theme/musique",
+    #               "https://www.hachette.fr/theme/bandes-dessinees", "https://www.hachette.fr/theme/mangas", "https://www.hachette.fr/theme/cuisine", "https://www.hachette.fr/theme/vins-et-spiritueux",
+    #               "https://www.hachette.fr/theme/fantastique", "https://www.hachette.fr/theme/fantasy", "https://www.hachette.fr/theme/science-fiction", "https://www.hachette.fr/theme/actualites",
+    #               "https://www.hachette.fr/theme/histoire", "https://www.hachette.fr/theme/ados", "https://www.hachette.fr/theme/albums-et-illustres", "https://www.hachette.fr/theme/eveil",
+    #               "https://www.hachette.fr/theme/premieres-encyclopedies", "https://www.hachette.fr/theme/premieres-lectures", "https://www.hachette.fr/theme/theatre-et-poesie", "https://www.hachette.fr/theme/biographies-memoires",
+    #               "https://www.hachette.fr/theme/essais", "https://www.hachette.fr/theme/humour", "https://www.hachette.fr/theme/oeuvres-classiques", "https://www.hachette.fr/theme/romans-et-nouvelles-de-genre",
+    #               "https://www.hachette.fr/theme/romans-etrangers", "https://www.hachette.fr/theme/romans-francophones", "https://www.hachette.fr/theme/romans-erotiques", "https://www.hachette.fr/theme/polar",
+    #               "https://www.hachette.fr/theme/thriller", "https://www.hachette.fr/theme/famille", "https://www.hachette.fr/theme/sante-bien-etre", "https://www.hachette.fr/theme/sports", "https://www.hachette.fr/theme/sciences",
+    #               "https://www.hachette.fr/theme/dictionnaires-et-encyclopedies", "https://www.hachette.fr/theme/droit-et-sciences-humaines", "https://www.hachette.fr/theme/geographie", "https://www.hachette.fr/theme/informatique-et-management",
+    #               "https://www.hachette.fr/theme/medecine", "https://www.hachette.fr/theme/religion", "https://www.hachette.fr/theme/scolaire-et-parascolaire", "https://www.hachette.fr/theme/cartes-et-atlas",
+    #               "https://www.hachette.fr/theme/guides", "https://www.hachette.fr/theme/bricolage", "https://www.hachette.fr/theme/loisirs", "https://www.hachette.fr/theme/nature"]
+
     start_urls = ["https://www.hachette.fr/theme/beaux-livres", "https://www.hachette.fr/theme/histoire-de-lart-et-art-majeurs", "https://www.hachette.fr/theme/musique",
-                  "https://www.hachette.fr/theme/bandes-dessinees", "https://www.hachette.fr/theme/mangas", "https://www.hachette.fr/theme/cuisine", "https://www.hachette.fr/theme/vins-et-spiritueux",
-                  "https://www.hachette.fr/theme/fantastique", "https://www.hachette.fr/theme/fantasy", "https://www.hachette.fr/theme/science-fiction", "https://www.hachette.fr/theme/actualites",
-                  "https://www.hachette.fr/theme/histoire", "https://www.hachette.fr/theme/ados", "https://www.hachette.fr/theme/albums-et-illustres", "https://www.hachette.fr/theme/eveil",
-                  "https://www.hachette.fr/theme/premieres-encyclopedies", "https://www.hachette.fr/theme/premieres-lectures", "https://www.hachette.fr/theme/theatre-et-poesie", "https://www.hachette.fr/theme/biographies-memoires",
-                  "https://www.hachette.fr/theme/essais", "https://www.hachette.fr/theme/humour", "https://www.hachette.fr/theme/oeuvres-classiques", "https://www.hachette.fr/theme/romans-et-nouvelles-de-genre",
-                  "https://www.hachette.fr/theme/romans-etrangers", "https://www.hachette.fr/theme/romans-francophones", "https://www.hachette.fr/theme/romans-erotiques", "https://www.hachette.fr/theme/polar",
-                  "https://www.hachette.fr/theme/thriller", "https://www.hachette.fr/theme/famille", "https://www.hachette.fr/theme/sante-bien-etre", "https://www.hachette.fr/theme/sports", "https://www.hachette.fr/theme/sciences",
-                  "https://www.hachette.fr/theme/dictionnaires-et-encyclopedies", "https://www.hachette.fr/theme/droit-et-sciences-humaines", "https://www.hachette.fr/theme/geographie", "https://www.hachette.fr/theme/informatique-et-management",
-                  "https://www.hachette.fr/theme/medecine", "https://www.hachette.fr/theme/religion", "https://www.hachette.fr/theme/scolaire-et-parascolaire", "https://www.hachette.fr/theme/cartes-et-atlas",
-                  "https://www.hachette.fr/theme/guides", "https://www.hachette.fr/theme/bricolage", "https://www.hachette.fr/theme/loisirs", "https://www.hachette.fr/theme/nature"]
+                  "https://www.hachette.fr/theme/bandes-dessinees"]
+
     page_nb = 1
+
 
     def parse(self, response):
         book_links = response.css('div.field-name-hw-livre-couverture a::attr(href)').getall()[1:]
@@ -34,10 +40,11 @@ class HachetteSpider(scrapy.Spider):
         else:
             self.page_nb += 1
 
-        yield response.follow(next_page, callback=self.parse)
+        # yield response.follow(next_page, callback=self.parse)
 
     def parse_book(self, response):
         item = BookItem()
+        category_helper = CategoryHelper(self.name)
 
         item["title"] = response.css('div.field-name-hw-livre-titre-couv h1::text').get()
         item["author"] = response.css('div.group-info-livre div.field-name-hw-intervenants a::text').getall()
@@ -55,10 +62,20 @@ class HachetteSpider(scrapy.Spider):
 
         item["number_of_pages"] = response.css('div.field-name-hw-livre-nb-pages div.field-item::text').get()
         item["dimensions"] = response.css('div.field-name-hw-livre-format div.field-item::text').get()
-        # item["poids"] = response.css('div.tab-content dd[itemtype="http://schema.org/Weight"]::text').get()
+        # item["weight"] = response.css('div.tab-content dd[itemtype="http://schema.org/Weight"]::text').get()
         item["language"] = "français"
 
-        item['image_urls'] = [response.css(f'img[title="{item["title"]}"]::attr(src)').get()]
+        book_cover = response.css(f'img[title="{item["title"]}"]::attr(src)').get()
+
+        if book_cover is not None:
+            item['image_urls'] = [book_cover]
+
+        categories = response.css('div.field-name-hw-livre-themes a::attr(href)').getall()
+        mapped_categories = []
+        for category in categories:
+            mapped_categories.append(category_helper.map_scraped_category(category.split('/')[2]))
+
+        item['categories'] = mapped_categories
 
         yield item
 
